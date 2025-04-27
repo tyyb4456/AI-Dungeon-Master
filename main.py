@@ -10,7 +10,8 @@ from graph_builder import (
     world_and_quest_node,
     narration_node,
     action_input_node,
-    action_resolution_node
+    action_resolution_node,
+    voice_output_node,
 )
 
 # Add nodes
@@ -19,6 +20,8 @@ builder.add_node("world_and_quest", world_and_quest_node)
 builder.add_node("narration", narration_node)
 builder.add_node("action_input", action_input_node)
 builder.add_node("action_resolution", action_resolution_node)
+builder.add_node("voice_output", voice_output_node)
+
 
 # Define flow
 builder.set_entry_point("start_session")
@@ -26,11 +29,15 @@ builder.set_entry_point("start_session")
 # Setup edges (flow connections)
 builder.add_edge("start_session", "world_and_quest")
 builder.add_edge("world_and_quest", "narration")
-builder.add_edge("narration", "action_input")
+
+builder.add_edge("narration", "voice_output")  
+builder.add_edge("voice_output", "action_input") 
+
 builder.add_edge("action_input", "action_resolution")
 
 # 📢 ♻️ Loop back: After resolving an action → narrate again!
 builder.add_edge("action_resolution", "narration")
+
 
 
 # Compile the graph

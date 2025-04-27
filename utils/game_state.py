@@ -29,5 +29,5 @@ class GameState(BaseModel):
     level: int = 1
     health_points: int = 100
     max_health_points: int = 100
-
-
+    latest_narration: str = ""
+    voice_output_disabled: bool = False 

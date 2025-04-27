@@ -99,10 +99,10 @@ def narration_node(input_state: GameState) -> GameState:
 
     # Basic next action detection
     actions = []
-    lines = result.split("\n")
-    for line in lines:
-        if "Talk to" in line or "Explore" in line or "Fight" in line or "Investigate" in line or "Move" in line:
-            actions.append(line.strip())
+    # lines = result.split("\n")
+    matches = re.findall(r'\d+\.\s(.+)', result)
+    for action in matches:
+        actions.append(action.strip())
 
     # 📌 SAFETY: if no actions found, add defaults
     if not actions:
@@ -253,3 +253,50 @@ def action_resolution_node(input_state: GameState) -> GameState:
         "inventory": updated_inventory,
         "health_points": updated_hp
     })
+
+
+
+from utils.elevenlabs_tts import text_to_speech_file
+
+def voice_output_node(input_state: GameState) -> GameState:
+    # 🚫 If previous failure, skip TTS
+    if input_state.voice_output_disabled:
+        return input_state
+    
+    try:
+        text1 = (
+            input_state.world_intro + "\n" +
+            input_state.location_intro + "\n" +
+            input_state.main_quest + "\n" +
+            "\n".join(input_state.npcs)  # ✅ Fix: join list to string
+        )
+        text2 = (
+            input_state.current_scene + "\n" +
+            input_state.selected_action + "\n" +
+            input_state.action_result
+        )
+        text3 = (
+            input_state.last_roll_outcome + "\n" +
+            str(input_state.last_dice_roll) + "\n" +    # ✅ Fix: cast int to str
+            "\n".join(input_state.inventory) + "\n" +
+            f"Health: {input_state.health_points} HP"
+        )
+
+        text4 = "\n".join(input_state.new_available_actions)  # ✅ Again join list of actions
+
+        audio_file_path1 = text_to_speech_file(text1, "audio1.mp3")
+        audio_file_path2 = text_to_speech_file(text2, "audio2.mp3")
+        audio_file_path3 = text_to_speech_file(text3, "audio3.mp3")
+        audio_file_path4 = text_to_speech_file(text4, "audio4.mp3")
+
+
+        return input_state.copy(update={
+            "audio_file_path1": audio_file_path1,
+            "audio_file_path2": audio_file_path2,
+            "audio_file_path3": audio_file_path3,
+            "audio_file_path4": audio_file_path4
+        })
+    except Exception as e:
+        print(f"🚨 Error in voice output: {e}")
+        print("⚡ Disabling future voice output and continuing the game...")
+        return input_state.copy(update={"voice_output_disabled": True})
