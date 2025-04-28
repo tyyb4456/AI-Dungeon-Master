@@ -14,6 +14,10 @@ from utils.inventory_manager import add_item_to_inventory, show_inventory, remov
 # Load environment variables
 load_dotenv()
 
+# from langchain_google_genai import ChatGoogleGenerativeAI
+# model = ChatGoogleGenerativeAI(model='gemini-2.0-flash', temperature=0.5)
+
+
 model = ChatGroq(
     model="deepseek-r1-distill-llama-70b",
     temperature=0.5

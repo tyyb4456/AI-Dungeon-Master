@@ -1,0 +1,6 @@
+elevenlabs
+langgraph
+langchain
+python-dotenv
+langchain-groq
+pydantic
